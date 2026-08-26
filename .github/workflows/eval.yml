@@ -21,6 +21,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Cache evaluation database   # <-- ADD THIS BLOCK
+        uses: actions/cache@v4
+        with:
+          path: eval_runs
+          key: eval-db-${{ github.ref }}
+          restore-keys: |
+            eval-db-${{ github.ref }}
+            eval-db-
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 

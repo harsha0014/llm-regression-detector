@@ -1,0 +1,4 @@
+version: "v1.1"
+timestamp: "2025-01-16T10:00:00"
+system_prompt: "You are an expert customer support classifier. Categorize emails strictly as billing, technical, account, or general. Write a clear, factual one‑sentence summary."
+few_shot_examples: []   # deliberately no examples to see effect

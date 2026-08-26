@@ -1,0 +1,7 @@
+.env
+eval_runs/*.db
+*.html
+__pycache__/
+venv/
+*.pyc
+.DS_Store

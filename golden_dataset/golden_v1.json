@@ -1,0 +1,45 @@
+{
+  "version": "v1",
+  "test_cases": [
+    {
+      "id": "tc_001",
+      "input": "I got charged twice for my monthly plan. Can you refund one?",
+      "expected_category": "billing",
+      "expected_summary": "Double billing for subscription.",
+      "difficulty": "easy",
+      "notes": "Obvious billing case."
+    },
+    {
+      "id": "tc_002",
+      "input": "The app crashes every time I try to upload a photo.",
+      "expected_category": "technical",
+      "expected_summary": "App crashes on photo upload.",
+      "difficulty": "easy",
+      "notes": "Clear technical issue."
+    },
+    {
+      "id": "tc_003",
+      "input": "I can't log in – it says my password is wrong but I'm sure it's correct.",
+      "expected_category": "account",
+      "expected_summary": "Login failure despite correct password.",
+      "difficulty": "medium",
+      "notes": "Could be account or technical; we label as account."
+    },
+    {
+      "id": "tc_004",
+      "input": "hi i want to cancel my account but also i think ur billing is confusing",
+      "expected_category": "account",
+      "expected_summary": "Account cancellation request with billing confusion.",
+      "difficulty": "hard",
+      "notes": "Mixed intent: account and billing. We expect account as primary."
+    },
+    {
+      "id": "tc_005",
+      "input": "Just wanted to say your support team is awesome!",
+      "expected_category": "general",
+      "expected_summary": "Positive feedback about support.",
+      "difficulty": "easy",
+      "notes": "General praise, no specific issue."
+    }
+  ]
+}

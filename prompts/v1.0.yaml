@@ -1,5 +1,5 @@
 version: "v1.0"
-timestamp: "2025-01-15T10:00:00"
+timestamp: "2026-08-26T12:00:00"
 system_prompt: "You are a customer support email classifier. Categorize emails into: billing, technical, account, general. Provide a concise one‑sentence summary."
 few_shot_examples:
   - email: "I was charged twice for my subscription."
@@ -8,3 +8,6 @@ few_shot_examples:
   - email: "The login page keeps redirecting to an error."
     category: "technical"
     summary: "Login redirect issue."
+  - email: "I can't log in to my account even after resetting my password."
+    category: "account"
+    summary: "Login issue after password reset."

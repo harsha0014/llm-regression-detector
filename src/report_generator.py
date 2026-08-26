@@ -15,7 +15,7 @@ def generate_html_report(
     history = get_all_runs(limit=10)
     trend_data = [{"run": r.run_id[:10], "rate": r.pass_rate * 100} for r in history]
 
-    # Prepare regression rows (showing DeepEval score changes)
+    # Prepare regression rows
     regression_rows = ""
     if diff and diff.regressions:
         # Find the previous results for these cases
@@ -35,7 +35,28 @@ def generate_html_report(
             </tr>
             """
 
-    # Build the HTML
+    # Build the HTML – FIX: handle diff being None
+    diff_section = ""
+    if diff:
+        diff_section = f"""
+        <h2>📋 Diff vs Baseline</h2>
+        <p><strong>Baseline Run:</strong> {diff.baseline_run_id}</p>
+        <div class="scorecard">
+            <div class="card"><h3>Pass Rate Δ</h3><div class="value {'pass' if diff.pass_rate_delta >= 0 else 'fail'}">{diff.pass_rate_delta * 100:+.1f}%</div></div>
+            <div class="card"><h3>Regressions</h3><div class="value fail">{len(diff.regressions)}</div></div>
+            <div class="card"><h3>Improvements</h3><div class="value pass">{len(diff.improvements)}</div></div>
+        </div>
+        {f'<p class="fail"><strong>❌ CRITICAL</strong> regression detected!</p>' if diff.critical_triggered else ''}
+        {f'<p class="warn"><strong>⚠️ WARNING</strong> threshold exceeded.</p>' if diff.warning_triggered and not diff.critical_triggered else ''}
+        {f'<p class="pass"><strong>✅ No significant regression.</strong></p>' if not diff.warning_triggered and not diff.critical_triggered else ''}
+        """
+    else:
+        diff_section = """
+        <h2>📋 First Run</h2>
+        <p><strong>This is the first run – no baseline to compare against.</strong></p>
+        <p>Future runs will show diff metrics here.</p>
+        """
+
     html = f"""
     <!DOCTYPE html>
     <html>
@@ -92,16 +113,7 @@ def generate_html_report(
                 }});
             </script>
 
-            <h2>📋 Diff vs Baseline</h2>
-            <p><strong>Baseline Run:</strong> {diff.baseline_run_id if diff else 'N/A (first run)'}</p>
-            <div class="scorecard">
-                <div class="card"><h3>Pass Rate Δ</h3><div class="value {'pass' if (diff and diff.pass_rate_delta >= 0) else 'fail'}">{diff.pass_rate_delta * 100:+.1f}%</div></div>
-                <div class="card"><h3>Regressions</h3><div class="value fail">{len(diff.regressions) if diff else 0}</div></div>
-                <div class="card"><h3>Improvements</h3><div class="value pass">{len(diff.improvements) if diff else 0}</div></div>
-            </div>
-            {f'<p class="fail"><strong>❌ CRITICAL</strong> regression detected!</p>' if diff and diff.critical_triggered else ''}
-            {f'<p class="warn"><strong>⚠️ WARNING</strong> threshold exceeded.</p>' if diff and diff.warning_triggered and not diff.critical_triggered else ''}
-            {f'<p class="pass"><strong>✅ No significant regression.</strong></p>' if diff and not diff.warning_triggered else ''}
+            {diff_section}
 
             <h2>🐛 Regressed Cases (Old vs New)</h2>
             <table>

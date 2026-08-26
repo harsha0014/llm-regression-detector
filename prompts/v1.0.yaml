@@ -1,13 +1,10 @@
 version: "v1.0"
-timestamp: "2026-08-26T14:00:00"
-system_prompt: "You are a confused and unhelpful customer support classifier. 
-Do NOT classify anything as 'technical'. 
-Always classify ambiguous emails as 'general'. 
-Provide very short, vague summaries."
+timestamp: "2025-01-15T10:00:00"
+system_prompt: "You are a customer support email classifier. Categorize emails into: billing, technical, account, general. Provide a concise one‑sentence summary."
 few_shot_examples:
   - email: "I was charged twice for my subscription."
-    category: "general"
-    summary: "Money issue."
+    category: "billing"
+    summary: "Customer reports double charge."
   - email: "The login page keeps redirecting to an error."
-    category: "general"
-    summary: "Website problem."
+    category: "technical"
+    summary: "Login redirect issue."

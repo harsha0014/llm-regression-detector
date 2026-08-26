@@ -8,3 +8,6 @@ few_shot_examples:
   - email: "The login page keeps redirecting to an error."
     category: "technical"
     summary: "Login redirect issue."
+  - email: "I forgot my password and can't reset it."
+    category: "account"
+    summary: "Password reset issue."

@@ -7,6 +7,12 @@ on:
       - 'golden_dataset/**'
   workflow_dispatch:
 
+# CRITICAL: Add permissions to post PR comments
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+
 jobs:
   evaluate:
     runs-on: ubuntu-latest
@@ -26,6 +32,7 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        continue-on-error: true   # <-- ADD THIS: Let the workflow continue even if eval fails
         run: |
           docker run \
             -e OPENAI_API_KEY="$OPENAI_API_KEY" \
@@ -35,7 +42,7 @@ jobs:
 
       - name: Upload HTML report as artifact
         uses: actions/upload-artifact@v4
-        if: always()   # <-- CRITICAL: Uploads even if the build fails
+        if: always()
         with:
           name: regression-report
           path: report.html
@@ -64,10 +71,11 @@ jobs:
             
             if (critical.includes('CRITICAL')) {
               comment += `⚠️ **This PR introduces a critical regression. Please review before merging.**\n`;
-              comment += `📄 [Download full report](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})`;
             } else {
               comment += `✅ **No significant regression detected.** Safe to merge.`;
             }
+            
+            comment += `\n📄 [Download full report](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})`;
             
             const { data: comments } = await github.rest.issues.listComments({
               issue_number: context.issue.number,

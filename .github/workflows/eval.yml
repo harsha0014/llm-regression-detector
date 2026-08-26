@@ -75,11 +75,32 @@ jobs:
             console.log(output);
             console.log('=== end ===');
             
-            // Improved regex with \s* for flexible whitespace
-            const passRate = output.match(/Pass rate:\s*([\d.]+%)/)?.[1] || 'N/A';
-            const deepEval = output.match(/Avg DeepEval Summary Score:\s*([\d.]+)/)?.[1] || 'N/A';
-            const delta = output.match(/Pass rate delta:\s*([+-][\d.]+%)/)?.[1] || 'N/A';
-            const regressions = output.match(/Regressions:\s*(\d+)/)?.[1] || '0';
+            // --- Bulletproof extraction using split & includes ---
+            const lines = output.split('\n');
+            let passRate = 'N/A';
+            let deepEval = 'N/A';
+            let delta = 'N/A';
+            let regressions = '0';
+            
+            for (const line of lines) {
+              if (line.includes('Pass rate:')) {
+                const match = line.match(/([\d.]+%)/);
+                if (match) passRate = match[1];
+              }
+              if (line.includes('Avg DeepEval Summary Score:')) {
+                const match = line.match(/([\d.]+)/);
+                if (match) deepEval = match[1];
+              }
+              if (line.includes('Pass rate delta:')) {
+                const match = line.match(/([+-][\d.]+%)/);
+                if (match) delta = match[1];
+              }
+              if (line.includes('Regressions:')) {
+                const match = line.match(/(\d+)/);
+                if (match) regressions = match[1];
+              }
+            }
+            
             const critical = output.includes('CRITICAL regression detected') ? '❌ CRITICAL' : '✅ No critical regression';
             
             let comment = `## 🤖 LLM Regression Report\n\n`;

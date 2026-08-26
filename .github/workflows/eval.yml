@@ -70,10 +70,16 @@ jobs:
             const fs = require('fs');
             const output = fs.readFileSync('eval_output.txt', 'utf8');
             
-            const passRate = output.match(/Pass rate: ([\d.]+%)/)?.[1] || 'N/A';
-            const deepEval = output.match(/Avg DeepEval Summary Score: ([\d.]+)/)?.[1] || 'N/A';
-            const delta = output.match(/Pass rate delta: ([+-][\d.]+%)/)?.[1] || 'N/A';
-            const regressions = output.match(/Regressions: (\d+)/)?.[1] || '0';
+            // Debug: print the content to the log
+            console.log('=== eval_output.txt content ===');
+            console.log(output);
+            console.log('=== end ===');
+            
+            // Improved regex with \s* for flexible whitespace
+            const passRate = output.match(/Pass rate:\s*([\d.]+%)/)?.[1] || 'N/A';
+            const deepEval = output.match(/Avg DeepEval Summary Score:\s*([\d.]+)/)?.[1] || 'N/A';
+            const delta = output.match(/Pass rate delta:\s*([+-][\d.]+%)/)?.[1] || 'N/A';
+            const regressions = output.match(/Regressions:\s*(\d+)/)?.[1] || '0';
             const critical = output.includes('CRITICAL regression detected') ? '❌ CRITICAL' : '✅ No critical regression';
             
             let comment = `## 🤖 LLM Regression Report\n\n`;

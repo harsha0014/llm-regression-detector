@@ -3,9 +3,9 @@ name: LLM Regression Detection
 on:
   pull_request:
     paths:
-      - 'prompts/**'          # Run only when prompts change
-      - 'golden_dataset/**'   # Also run if dataset changes
-  workflow_dispatch:          # Allow manual trigger for testing
+      - 'prompts/**'
+      - 'golden_dataset/**'
+  workflow_dispatch:
 
 jobs:
   evaluate:
@@ -31,24 +31,23 @@ jobs:
             -e OPENAI_API_KEY="$OPENAI_API_KEY" \
             -e SLACK_WEBHOOK_URL="$SLACK_WEBHOOK_URL" \
             regression-detector > eval_output.txt 2>&1
-          # Capture exit code
           echo "status=$?" >> $GITHUB_OUTPUT
 
       - name: Upload HTML report as artifact
         uses: actions/upload-artifact@v4
+        if: always()   # <-- CRITICAL: Uploads even if the build fails
         with:
           name: regression-report
           path: report.html
 
       - name: Post PR comment
         uses: actions/github-script@v7
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && always()
         with:
           script: |
             const fs = require('fs');
             const output = fs.readFileSync('eval_output.txt', 'utf8');
             
-            // Extract key metrics from the output
             const passRate = output.match(/Pass rate: ([\d.]+%)/)?.[1] || 'N/A';
             const deepEval = output.match(/Avg DeepEval Summary Score: ([\d.]+)/)?.[1] || 'N/A';
             const delta = output.match(/Pass rate delta: ([+-][\d.]+%)/)?.[1] || 'N/A';
@@ -66,12 +65,10 @@ jobs:
             if (critical.includes('CRITICAL')) {
               comment += `⚠️ **This PR introduces a critical regression. Please review before merging.**\n`;
               comment += `📄 [Download full report](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})`;
-              // Block merge by failing the check – we'll use exit code from the container
             } else {
               comment += `✅ **No significant regression detected.** Safe to merge.`;
             }
             
-            // Find the existing comment and update it, or create a new one
             const { data: comments } = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -96,7 +93,7 @@ jobs:
             }
 
       - name: Fail PR if critical regression detected
-        if: steps.eval.outputs.status == '1'  # Container returns 1 if critical
+        if: steps.eval.outputs.status == '1'
         run: |
           echo "❌ Critical regression detected – blocking merge."
           exit 1

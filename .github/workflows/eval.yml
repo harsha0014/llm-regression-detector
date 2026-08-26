@@ -32,13 +32,28 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        continue-on-error: true   # <-- ADD THIS: Let the workflow continue even if eval fails
+        continue-on-error: true
         run: |
           docker run \
             -e OPENAI_API_KEY="$OPENAI_API_KEY" \
             -e SLACK_WEBHOOK_URL="$SLACK_WEBHOOK_URL" \
+            -v ${PWD}:/app \
             regression-detector > eval_output.txt 2>&1
           echo "status=$?" >> $GITHUB_OUTPUT
+
+      - name: Upload eval log
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-log
+          path: eval_output.txt
+
+      - name: Print eval log
+        if: always()
+        run: |
+          echo "=== Eval Output ==="
+          cat eval_output.txt
+          echo "=== End Eval Output ==="
 
       - name: Upload HTML report as artifact
         uses: actions/upload-artifact@v4

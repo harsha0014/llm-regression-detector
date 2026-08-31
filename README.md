@@ -40,35 +40,6 @@ Caching: actions/cache@v4
 
 ---
 
-## Project Structure
-
-.
-├── .github/
-│   └── workflows/
-│       └── eval.yml                     # CI/CD pipeline definition
-├── prompts/
-│   ├── v1.0.yaml                        # Versioned prompt definitions
-│   └── v1.1.yaml                        # Alternative prompt version
-├── golden_dataset/
-│   └── golden_v1.json                   # Human-verified ground truth
-├── src/
-│   ├── models.py                        # Pydantic schemas
-│   ├── llm_client.py                    # OpenAI client (lazy-init)
-│   ├── deepeval_metric.py               # DeepEval GEval wrapper
-│   ├── eval_runner.py                   # Core evaluation & diff logic
-│   ├── db.py                            # SQLite storage & retrieval
-│   ├── report_generator.py              # HTML report builder
-│   ├── slack_alerter.py                 # Slack webhook sender
-│   └── drift_detector.py                # Rolling-average drift detection
-├── eval_runs/                           # Created at runtime (cached in CI)
-├── Dockerfile                           # Container definition
-├── .dockerignore                        # Files excluded from container
-├── .env.example                         # Environment variable template
-├── requirements.txt                     # Python dependencies
-└── run_eval.py                          # Main entry point
-
----
-
 ## Architecture & How It Works
 
 1. Versioned Prompts – Every prompt is stored as a YAML file with a version ID, timestamp, system prompt, and few‑shot examples.
